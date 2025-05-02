@@ -1,0 +1,170 @@
+Fleet Management System Overview
+=============================
+
+This document provides a comprehensive overview of the Fleet Management System for designers to understand the system's structure and requirements for creating an effective admin dashboard.
+
+1. System Overview
+-----------------
+The Fleet Management System is a comprehensive platform for managing vehicle fleets, bookings, and user accounts. The system is built using Django and Django REST Framework, providing both admin and API interfaces.
+
+2. Core Components
+-----------------
+
+2.1 User Management
+------------------
+- Custom user system with email-based authentication
+- Multiple user roles:
+  * Admin: Full system access
+  * Fleet Manager: Manages vehicles and parks
+  * Agent: Handles bookings and customer service
+  * Driver: Vehicle operators
+  * Regular Users: Booking customers
+
+User Profile Information:
+- Basic Info: Email, First Name, Last Name
+- Contact: Phone Number, Profile Picture
+- Additional Info: Date of Birth, Address
+- Emergency Contacts
+- Role-specific information
+
+2.2 Vehicle Management
+---------------------
+Vehicle Types:
+- Different categories (e.g., Sedan, SUV, Van)
+- Customizable vehicle types with descriptions
+
+Vehicle Information:
+- Basic Details: Name, Model, Year, Color
+- Identification: License Plate, VIN
+- Capacity: Total Seats, Available Seats
+- Status: Available, In Service, Maintenance, Out of Service
+- Location: Current Park, Departure Park, Arrival Park
+- Features: Amenities, Security Options, Entourage Options
+- Pricing: Hourly Rate, Daily Rate, Trip Amount
+- Technical: Fuel Type, Fuel Efficiency
+- Images: Multiple vehicle images with captions
+
+2.3 Park/Station Management
+--------------------------
+Park Information:
+- Name and Unique Code
+- Address and Contact Information
+- Active/Inactive Status
+- Vehicle Capacity
+- Location Coordinates (GeoDjango integration)
+
+2.4 Booking System
+-----------------
+Booking Types:
+- One Way
+- Round Trip
+- Hourly Rental
+- Daily Rental
+
+Booking Information:
+- Passenger Details
+- Vehicle Assignment
+- Trip Details:
+  * Source and Destination Parks
+  * Travel Date and Return Date (for round trips)
+  * Pickup Type (Home/Park)
+  * Passenger Count (Adults/Children)
+  * Luggage Count
+- Additional Services:
+  * Entourage Option
+  * Special Requests
+- Status Tracking:
+  * Pending
+  * Confirmed
+  * Completed
+  * Canceled
+- Check-in/Check-out Management
+- QR Code Generation
+- Payment Status
+
+3. Admin Dashboard Requirements
+-----------------------------
+
+3.1 User Management Interface
+----------------------------
+- User listing with filters and search
+- User role management
+- Profile management
+- Emergency contact management
+- Address management
+
+3.2 Vehicle Management Interface
+------------------------------
+- Vehicle listing with filters and search
+- Vehicle type management
+- Vehicle status updates
+- Image management
+- Capacity management
+- Pricing management
+- Location tracking
+
+3.3 Park Management Interface
+---------------------------
+- Park listing with filters and search
+- Park status management
+- Vehicle capacity tracking
+- Location management
+
+3.4 Booking Management Interface
+------------------------------
+- Booking listing with filters and search
+- Booking status management
+- Check-in/Check-out processing
+- Payment tracking
+- QR code generation and management
+- Trip scheduling
+- Vehicle assignment
+
+3.5 Reporting and Analytics
+--------------------------
+- Booking statistics
+- Vehicle utilization
+- Revenue tracking
+- User activity
+- Park performance
+- Driver performance
+
+4. Key Features for Admin Dashboard
+---------------------------------
+- Real-time status updates
+- Interactive maps for vehicle tracking
+- Calendar view for bookings
+- Bulk operations support
+- Export functionality
+- Notification system
+- Audit logging
+- Role-based access control
+- Mobile responsiveness
+
+5. Data Relationships
+--------------------
+- Users can have multiple bookings
+- Vehicles belong to parks
+- Bookings connect users, vehicles, and parks
+- Vehicles can have multiple images
+- Users can have multiple addresses and emergency contacts
+
+6. Security Considerations
+-------------------------
+- Role-based access control
+- Secure authentication
+- Data encryption
+- Audit logging
+- Session management
+- API security
+
+7. Integration Points
+--------------------
+- Payment gateway
+- Email service
+- SMS notifications
+- Maps integration
+- QR code generation
+- File storage for images
+
+This overview should provide designers with a clear understanding of the system's structure and requirements for creating an effective admin dashboard. The dashboard should focus on usability, efficiency, and providing quick access to the most important information and actions. 
