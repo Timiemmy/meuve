@@ -16,14 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from allauth.account.views import ConfirmEmailView
-from django.urls import path,re_path, include
+from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("auth/", include("dj_rest_auth.urls")),
-    re_path(
-        "auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",ConfirmEmailView.as_view(),name="account_confirm_email",),
-
     # Custom authentication URLs
     path('auth/', include('authentication.urls', namespace='auth')),
 
@@ -32,4 +30,11 @@ urlpatterns = [
     path('park/', include('park.urls', namespace='park')),
     path('vehicle/', include('vehicle.urls')),
     path('booking/', include('booking.urls', namespace='booking')),
+    path('payment/', include('payment.urls', namespace='payment')),
+
+    # API Schema URLs
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'),
+         name='swagger-ui'),
+    path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

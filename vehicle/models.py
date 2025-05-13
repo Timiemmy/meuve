@@ -57,11 +57,6 @@ class Vehicle(TimeStampedModel, UUIDModel):
 
     fuel_type = models.CharField(max_length=20, blank=True)
     fuel_efficiency = models.FloatField(null=True, blank=True)
-
-    hourly_rate = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
-    daily_rate = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
     trip_amount = models.FloatField(null=True, blank=True)
 
     trip_count = models.PositiveIntegerField(default=0)
@@ -129,7 +124,7 @@ class Vehicle(TimeStampedModel, UUIDModel):
         verbose_name_plural = 'Vehicles'
 
     def __str__(self):
-        make = self.make or "Unknown Make"
+        make = self.name or "Unknown Name"
         model = self.model or "Unknown Model"
         year = self.year or "Unknown Year"
         return f"{make} {model} ({year})"

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import filters
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from useraccount.permissions import IsAdmin, IsAdminOrFleetManager, IsAgent, IsFleetManager, IsDriver
@@ -74,7 +75,7 @@ class VehicleListView(generics.ListAPIView):
     serializer_class = serializers.VehicleSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = {
-        'make': ['exact', 'icontains'],
+        'name': ['exact', 'icontains'],
         'model': ['exact', 'icontains'],
         'category': ['exact'],
     }
@@ -93,6 +94,66 @@ class VehicleListView(generics.ListAPIView):
             queryset = queryset.filter(drivers__user__id=vehicle_driver)
 
         return queryset
+
+
+class VehicleListViewByFilters(generics.ListAPIView):
+    """
+    View to list vehicles with filtering and search capabilities.
+    Supports filtering by:
+    - vehicle type
+    - departure park
+    - arrival park
+    - status
+    And searching by:
+    - name
+    - model
+    - license plate
+    - VIN
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.VehicleSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = {
+        'category': ['exact'],
+        'departure_park': ['exact'],
+        'arrival_park': ['exact'],
+        'status': ['exact'],
+        'is_available': ['exact'],
+    }
+    search_fields = ['name', 'model']
+
+    def get_queryset(self):
+        queryset = Vehicle.objects.all()
+
+        # Get filter parameters
+        vehicle_type = self.request.query_params.get('vehicle_type')
+        departure_park = self.request.query_params.get('departure_park')
+        arrival_park = self.request.query_params.get('arrival_park')
+        search_query = self.request.query_params.get('search')
+
+        # Apply vehicle type filter
+        if vehicle_type:
+            queryset = queryset.filter(category__id=vehicle_type)
+
+        # Apply departure park filter
+        if departure_park:
+            queryset = queryset.filter(departure_park__id=departure_park)
+
+        # Apply arrival park filter
+        if arrival_park:
+            queryset = queryset.filter(arrival_park__id=arrival_park)
+
+        # Apply search filter if provided
+        if search_query:
+            queryset = queryset.filter(
+                name__icontains=search_query) | \
+                queryset.filter(model__icontains=search_query)
+
+        # Order by departure time
+        queryset = queryset.order_by('departure_time')
+
+        return queryset.distinct()
+
 
 
 class VehicleCreateWithImages(generics.CreateAPIView):

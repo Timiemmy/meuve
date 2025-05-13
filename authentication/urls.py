@@ -1,10 +1,10 @@
 from django.urls import path
-from .api import views as apiview
+from . import views 
 
 
 app_name = 'auth'
 
 urlpatterns = [
-    path('api/verify-email/', apiview.VerifyEmailCodeView.as_view(),
+    path('verify-email/', views.VerifyEmailCodeView.as_view(),
          name='verify-email'),
 ]

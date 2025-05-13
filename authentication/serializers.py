@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
-from authentication.utils import send_verification_email
+from .utils import send_verification_email
 
 
 User = get_user_model()

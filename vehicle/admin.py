@@ -51,7 +51,7 @@ class VehicleImageAdminClass(ModelAdmin):
     form = VehicleImageAdminForm
     list_display = ['vehicle', 'caption']
     list_filter = ['vehicle']
-    search_fields = ['vehicle__make', 'vehicle__model', 'caption']
+    search_fields = ['vehicle__name', 'vehicle__model', 'caption']
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)

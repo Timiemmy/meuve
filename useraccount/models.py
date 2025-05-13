@@ -17,10 +17,9 @@ class CustomUser(AbstractUser, TimeStampedModel, UUIDModel):
         null=True, blank=True, verbose_name='Birthday')
     phone_number = models.CharField(max_length=15, blank=True)
     phone_verified = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
-    is_agent = models.BooleanField(default=False)
-    is_fleet_manager = models.BooleanField(default=False)
-    is_driver = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
@@ -29,6 +28,22 @@ class CustomUser(AbstractUser, TimeStampedModel, UUIDModel):
 
     def __str__(self):
         return self.email
+
+    @property
+    def is_admin(self):
+        return self.groups.filter(name='admin').exists()
+
+    @property
+    def is_agent(self):
+        return self.groups.filter(name='agent').exists()
+
+    @property
+    def is_fleet_manager(self):
+        return self.groups.filter(name='fleetmanager').exists()
+
+    @property
+    def is_driver(self):
+        return self.groups.filter(name='driver').exists()
 
     def save(self, *args, **kwargs):
         # Check if this is a new user or an existing one being updated
@@ -41,25 +56,16 @@ class CustomUser(AbstractUser, TimeStampedModel, UUIDModel):
         if self.is_admin:
             if not hasattr(self, 'admin_profile'):
                 AdminUser.objects.create(user=self)
-        else:
-            if hasattr(self, 'admin_profile'):
-                self.admin_profile.delete()
 
         # Handle Agent
         if self.is_agent:
             if not hasattr(self, 'agent_profile'):
                 Agent.objects.create(user=self)
-        else:
-            if hasattr(self, 'agent_profile'):
-                self.agent_profile.delete()
 
         # Handle FleetManager
         if self.is_fleet_manager:
             if not hasattr(self, 'fleetmanager_profile'):
                 FleetManager.objects.create(user=self)
-        else:
-            if hasattr(self, 'fleetmanager_profile'):
-                self.fleetmanager_profile.delete()
 
         # Handle Driver
         if self.is_driver:
@@ -72,9 +78,6 @@ class CustomUser(AbstractUser, TimeStampedModel, UUIDModel):
                     license_expiry_date='2099-12-31',  # This should be updated later
                     driver_license_image=None  # This should be updated later
                 )
-        else:
-            if hasattr(self, 'driver_profile'):
-                self.driver_profile.delete()
 
 
 class AdminUser(models.Model):
@@ -82,6 +85,10 @@ class AdminUser(models.Model):
         CustomUser, on_delete=models.CASCADE, related_name='admin_profile')
     service_region = models.ForeignKey(
         Park, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_location')
+
+    class Meta:
+        verbose_name = 'Admin User'
+        verbose_name_plural = 'Admin Users'
 
     def __str__(self):
         return f"Admin: {self.user.email}"
@@ -93,6 +100,10 @@ class Agent(models.Model):
     service_region = models.OneToOneField(
         Park, on_delete=models.SET_NULL, null=True, blank=True, related_name='agent_location')
 
+    class Meta:
+        verbose_name = 'Agent'
+        verbose_name_plural = 'Agents'
+
     def __str__(self):
         return f"Agent: {self.user.email}"
 
@@ -103,8 +114,12 @@ class FleetManager(models.Model):
     service_region = models.OneToOneField(
         Park, on_delete=models.SET_NULL, null=True, blank=True, related_name='fleetmanager_location')
 
+    class Meta:
+        verbose_name = 'Fleet Manager'
+        verbose_name_plural = 'Fleet Managers'
+
     def __str__(self):
-        return f"Dispatcher: {self.user.email}"
+        return f"Fleet Manager: {self.user.email}"
 
 
 class Driver(models.Model):
@@ -126,7 +141,7 @@ class Driver(models.Model):
         verbose_name_plural = 'Drivers'
 
     def __str__(self):
-        return f"{self.user.username} - {self.vehicle.make} {self.vehicle.model}"
+        return f"{self.user.get_full_name()} - {self.vehicle.make} {self.vehicle.model}"
 
 
 class DriverVerification(models.Model):
@@ -153,6 +168,10 @@ class DriverVerification(models.Model):
         CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
 
+    class Meta:
+        verbose_name = 'Driver Verification'
+        verbose_name_plural = 'Driver Verifications'
+
     def __str__(self):
         return f"Verification for {self.driver.user.get_full_name()}"
 
@@ -163,6 +182,10 @@ class EmergencyContact(models.Model):
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15)
     relationship = models.CharField(max_length=50, blank=True)
+
+    class Meta:
+        verbose_name = 'Emergency Contact'
+        verbose_name_plural = 'Emergency Contacts'
 
     def __str__(self):
         return f"{self.name} ({self.relationship}) - {self.phone_number}"
@@ -176,8 +199,19 @@ class Address(models.Model):
     state = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100)
+    is_default = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Address'
+        verbose_name_plural = 'Addresses'
+        ordering = ['-is_default', 'city']
 
     def __str__(self):
         return f"{self.street_address}, {self.city}, {self.state}, {self.postal_code}, {self.country}"
 
-
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            # Set all other addresses of this user to non-default
+            Address.objects.filter(user=self.user).exclude(
+                pk=self.pk).update(is_default=False)
+        super().save(*args, **kwargs)

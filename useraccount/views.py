@@ -6,13 +6,13 @@ from . import serializers
 
 
 class CustomUserListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, IsAdmin]
+    permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = serializers.CustomUserSerializer
 
 
 class CustomUserCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, IsAdmin]
+    permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = serializers.CustomUserSerializer
 
@@ -20,7 +20,7 @@ class CustomUserCreateView(generics.CreateAPIView):
 class CustomUserDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = serializers.CustomUserSerializer
-    permission_classes = [IsAuthenticated, IsAdmin, IsOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_address(self, obj):
         try:
@@ -34,19 +34,19 @@ class CustomUserDetailView(generics.RetrieveAPIView):
 class CustomUserUpdateView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = serializers.CustomUserSerializer
-    permission_classes = [IsAuthenticated, IsAdmin, IsOwner]
+    permission_classes = [IsAuthenticated]
 
 
 class CustomUserDestroyView(generics.DestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = serializers.CustomUserSerializer
-    permission_classes = [IsAuthenticated, IsAdmin, IsOwner]
+    permission_classes = [IsAuthenticated]
 
 
 class DriverListView(generics.ListAPIView):
     queryset = Driver.objects.all()
     serializer_class = serializers.DriverSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrFleetManager]
+    permission_classes = [IsAuthenticated]
 
 
 class DriverDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -58,12 +58,12 @@ class DriverDetailView(generics.RetrieveUpdateDestroyAPIView):
 class EmergencyContactListView(generics.ListAPIView):
     queryset = EmergencyContact.objects.all()
     serializer_class = serializers.EmergencyContactSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrFleetManager]
+    permission_classes = [IsAuthenticated]
 
 
 class EmergencyContactOwnerListView(generics.ListAPIView):
     serializer_class = serializers.EmergencyContactSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrFleetManager, IsOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user_id = self.kwargs.get('pk')
@@ -83,7 +83,7 @@ class EmergencyContactCreateView(generics.CreateAPIView):
 class EmergencyContactDeleteView(generics.RetrieveDestroyAPIView):
     serializer_class = serializers.EmergencyContactSerializer
     queryset = EmergencyContact.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminOrFleetManager, IsOwner]
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 # Address
@@ -109,10 +109,10 @@ class AddressCreateView(generics.CreateAPIView):
 class AddressDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.AddressSerializer
     queryset = Address.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminOrFleetManager, IsOwner]
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 class AddressDeleteView(generics.RetrieveDestroyAPIView):
     serializer_class = serializers.AddressSerializer
     queryset = Address.objects.all()
-    permission_classes = [IsAuthenticated, IsOwner, IsAdminOrFleetManager]
+    permission_classes = [IsAuthenticated, IsOwner]

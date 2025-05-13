@@ -72,6 +72,9 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'dj_rest_auth',
     'django_filters',
+    'drf_spectacular',
+
+    'django_seed',
 
     'allauth',
     'allauth.account',
@@ -121,9 +124,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -187,8 +198,9 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
-
+        'rest_framework.filters.SearchFilter',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -202,11 +214,11 @@ REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False,  # Makes sure refresh token is sent
     'LOGOUT_ON_PASSWORD_CHANGE': True,
-    'REGISTER_SERIALIZER': 'authentication.api.serializers.CustomRegisterSerializer',
+    'REGISTER_SERIALIZER': 'authentication.serializers.CustomRegisterSerializer',
 }
 
 
-ACCOUNT_ADAPTER = 'authentication.api.adapters.CustomAccountAdapter'
+ACCOUNT_ADAPTER = 'authentication.adapters.CustomAccountAdapter'
 
 
 LOGIN_URL = 'auth/login'
@@ -252,3 +264,24 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 #         },
 #     },
 # }
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Fleet Management API',
+    'DESCRIPTION': 'API for Fleet Management System',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+    },
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+}
+
+
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
