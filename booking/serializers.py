@@ -148,11 +148,15 @@ class BookingCreateSerializer(serializers.ModelSerializer):
                 is_round_trip
             )
 
+            # Generate booking code
+            booking_code = generate_booking_code()
+
             # Create booking with the selected vehicle
             booking = Booking.objects.create(
                 vehicle=vehicle,
                 booking_date=timezone.now(),
                 amount=amount,
+                booking_code=booking_code,
                 **validated_data
             )
 

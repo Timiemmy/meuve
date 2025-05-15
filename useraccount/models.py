@@ -29,56 +29,6 @@ class CustomUser(AbstractUser, TimeStampedModel, UUIDModel):
     def __str__(self):
         return self.email
 
-    @property
-    def is_admin(self):
-        return self.groups.filter(name='admin').exists()
-
-    @property
-    def is_agent(self):
-        return self.groups.filter(name='agent').exists()
-
-    @property
-    def is_fleet_manager(self):
-        return self.groups.filter(name='fleetmanager').exists()
-
-    @property
-    def is_driver(self):
-        return self.groups.filter(name='driver').exists()
-
-    def save(self, *args, **kwargs):
-        # Check if this is a new user or an existing one being updated
-        is_new = self._state.adding
-
-        # Save the user first to get the ID
-        super().save(*args, **kwargs)
-
-        # Handle AdminUser
-        if self.is_admin:
-            if not hasattr(self, 'admin_profile'):
-                AdminUser.objects.create(user=self)
-
-        # Handle Agent
-        if self.is_agent:
-            if not hasattr(self, 'agent_profile'):
-                Agent.objects.create(user=self)
-
-        # Handle FleetManager
-        if self.is_fleet_manager:
-            if not hasattr(self, 'fleetmanager_profile'):
-                FleetManager.objects.create(user=self)
-
-        # Handle Driver
-        if self.is_driver:
-            if not hasattr(self, 'driver_profile'):
-                # Note: Driver creation requires additional fields
-                # This is just a basic creation, you might want to handle this differently
-                Driver.objects.create(
-                    user=self,
-                    license_number='TEMP_LICENSE',  # This should be updated later
-                    license_expiry_date='2099-12-31',  # This should be updated later
-                    driver_license_image=None  # This should be updated later
-                )
-
 
 class AdminUser(models.Model):
     user = models.OneToOneField(

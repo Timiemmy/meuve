@@ -23,14 +23,13 @@ from .filters import BookingFilter
 class BookingListView(generics.ListAPIView):
     """
     List all bookings with filtering and search capabilities.
-    Only accessible by admin users.
+    Only accessible by admin users or agents.
     """
     serializer_class = BookingSerializer
-    # permission_classes = [IsAdmin, IsAgent]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsAgent]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = BookingFilter
-    search_fields = ['booking_code',
-                     'passenger__email']
+    search_fields = ['booking_code', 'passenger__email']
     ordering_fields = ['booking_date', 'travel_date',
                        'check_in_time', 'check_out_time']
     ordering = ['-booking_date']
@@ -82,8 +81,8 @@ class BookingDetailView(generics.RetrieveAPIView):
     Retrieve a specific booking.
     """
     serializer_class = BookingDetailSerializer
-    permission_classes = [
-        permissions.IsAuthenticated, IsOwner, IsAdmin, IsAgent]
+    permission_classes = [permissions.IsAuthenticated,
+                          IsOwner | IsAdmin | IsAgent]
     queryset = Booking.objects.select_related(
         'passenger',
         'vehicle',
@@ -98,8 +97,8 @@ class BookingUpdateView(generics.UpdateAPIView):
     Handles check-in and check-out operations.
     """
     serializer_class = BookingUpdateSerializer
-    permission_classes = [
-        permissions.IsAuthenticated, IsOwner, IsAdmin, IsAgent]
+    permission_classes = [permissions.IsAuthenticated,
+                          IsOwner | IsAdmin | IsAgent]
     queryset = Booking.objects.all()
 
     def perform_update(self, serializer):
@@ -125,8 +124,8 @@ class BookingDeleteView(generics.DestroyAPIView):
     Only allowed for admin users or if the booking is not checked in.
     """
     serializer_class = BookingSerializer
-    permission_classes = [
-        permissions.IsAuthenticated, IsOwner, IsAdmin, IsAgent]
+    permission_classes = [permissions.IsAuthenticated,
+                          IsOwner | IsAdmin | IsAgent]
     queryset = Booking.objects.all()
 
     def perform_destroy(self, instance):
@@ -141,7 +140,7 @@ class BookingCheckInView(generics.UpdateAPIView):
     Check in a passenger for their booking.
     """
     serializer_class = BookingUpdateSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdmin, IsAgent]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsAgent]
     queryset = Booking.objects.all()
 
     def update(self, request, *args, **kwargs):
@@ -173,7 +172,7 @@ class BookingCheckOutView(generics.UpdateAPIView):
     """
     serializer_class = BookingUpdateSerializer
     permission_classes = [permissions.IsAuthenticated,
-                          IsAgent, IsAdminOrFleetManager]
+                          IsAgent | IsAdminOrFleetManager]
     queryset = Booking.objects.all()
 
     def update(self, request, *args, **kwargs):
@@ -204,8 +203,8 @@ class BookingCancelView(generics.UpdateAPIView):
     Cancel a booking with reason.
     """
     serializer_class = BookingUpdateSerializer
-    permission_classes = [
-        permissions.IsAuthenticated, IsOwner, IsAgent, IsAdmin]
+    permission_classes = [permissions.IsAuthenticated,
+                          IsOwner | IsAgent | IsAdmin]
     queryset = Booking.objects.all()
 
     def update(self, request, *args, **kwargs):

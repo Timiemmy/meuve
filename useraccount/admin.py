@@ -37,20 +37,20 @@ class CustomUserAdmin(BaseUserAdmin, ModelAdmin):
 
 
 @admin.register(AdminUser)
-class AdminUserAdmin(admin.ModelAdmin):
+class AdminUserAdmin(ModelAdmin):
     list_display = ('user', 'service_region')
     search_fields = ['user__email', 'department']
 
 
 @admin.register(Agent)
-class AgentAdmin(admin.ModelAdmin):
+class AgentAdmin(ModelAdmin):
     list_display = ('user', 'service_region')
     search_fields = ['user__email']
     list_filter = ['service_region']
 
 
 @admin.register(FleetManager)
-class FleetManagerAdmin(admin.ModelAdmin):
+class FleetManagerAdmin(ModelAdmin):
     list_display = ('user', 'service_region')
     search_fields = ['user__email']
     list_filter = ['service_region']
@@ -62,13 +62,13 @@ class DriverAdminClass(ModelAdmin):
 
 
 @admin.register(EmergencyContact)
-class EmergencyContactAdmin(admin.ModelAdmin):
+class EmergencyContactAdmin(ModelAdmin):
     list_display = ("user", "name", "phone_number", "relationship")
     search_fields = ["user__email", "name", "phone_number", "relationship"]
 
 
 @admin.register(Address)
-class AddressAdmin(admin.ModelAdmin):
+class AddressAdmin(ModelAdmin):
     list_display = ('user', 'city', 'state', 'country')
     search_fields = ['user__email', 'city', 'state', 'country']
 

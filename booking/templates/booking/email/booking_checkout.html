@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #FF9800;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Check-out Confirmation</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{ user.first_name }},</p>
+            
+            <p>Your booking has been successfully checked out. Here are the details:</p>
+            
+            <h3>Booking Information:</h3>
+            <ul>
+                <li><strong>Booking Code:</strong> {{ booking.booking_code }}</li>
+                <li><strong>Check-out Time:</strong> {{ booking.check_out_time|date:"F d, Y H:i" }}</li>
+                <li><strong>From:</strong> {{ booking.source_park.name }}</li>
+                <li><strong>To:</strong> {{ booking.destination_park.name }}</li>
+                <li><strong>Vehicle:</strong> {{ booking.vehicle.name }} ({{ booking.vehicle.license_plate }})</li>
+            </ul>
+
+            <p>Thank you for choosing our service! We hope you had a pleasant journey.</p>
+            
+            <p>We would appreciate if you could take a moment to rate your experience with us.</p>
+            
+            <p>If you have any feedback or need assistance, please don't hesitate to contact our customer service.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html> 

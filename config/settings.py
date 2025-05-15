@@ -245,27 +245,6 @@ ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'INFO',
-#         },
-#         'dj_rest_auth': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }
-
-
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Fleet Management API',
     'DESCRIPTION': 'API for Fleet Management System',

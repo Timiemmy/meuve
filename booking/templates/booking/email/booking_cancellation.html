@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f44336;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Booking Cancellation</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{ user.first_name }},</p>
+            
+            <p>Your booking has been cancelled. Here are the details:</p>
+            
+            <h3>Booking Information:</h3>
+            <ul>
+                <li><strong>Booking Code:</strong> {{ booking.booking_code }}</li>
+                <li><strong>Cancellation Time:</strong> {{ booking.cancellation_time|date:"F d, Y H:i" }}</li>
+                <li><strong>Travel Date:</strong> {{ booking.travel_date|date:"F d, Y" }}</li>
+                <li><strong>From:</strong> {{ booking.source_park.name }}</li>
+                <li><strong>To:</strong> {{ booking.destination_park.name }}</li>
+                <li><strong>Cancellation Reason:</strong> {{ booking.cancellation_reason }}</li>
+            </ul>
+
+            <p>If you would like to make a new booking, please visit our website or contact our customer service.</p>
+            
+            <p>If you have any questions about the cancellation, please don't hesitate to contact us.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html> 

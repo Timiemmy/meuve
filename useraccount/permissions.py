@@ -1,7 +1,9 @@
 from rest_framework import permissions
 from django.contrib.auth import get_user_model
 from park.models import Park
+import logging
 
+logger = logging.getLogger(__name__)
 CustomUser = get_user_model()
 
 
@@ -11,11 +13,21 @@ class IsAdmin(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        user_groups = list(request.user.groups.values_list('name', flat=True))
+        logger.debug(f"User groups for {request.user.email}: {user_groups}")
         return bool(request.user and request.user.is_authenticated and request.user.groups.filter(name='admin').exists())
 
     def has_object_permission(self, request, view, obj):
-        # Admin has full permissions on all objects
-        return bool(request.user and request.user.is_authenticated and request.user.groups.filter(name='admin').exists())
+        if not request.user.is_authenticated or not request.user.groups.filter(name='admin').exists():
+            return False
+
+        # Admin has full permissions on objects in their service region
+        admin_region = request.user.admin_profile.service_region
+        if hasattr(obj, 'service_region'):
+            return obj.service_region == admin_region
+        elif isinstance(obj, Park):
+            return obj == admin_region
+        return False
 
 
 class IsFleetManager(permissions.BasePermission):
@@ -24,16 +36,19 @@ class IsFleetManager(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        user_groups = list(request.user.groups.values_list('name', flat=True))
+        logger.debug(f"User groups for {request.user.email}: {user_groups}")
         return bool(request.user and request.user.is_authenticated and request.user.groups.filter(name='fleetmanager').exists())
 
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated or not request.user.groups.filter(name='fleetmanager').exists():
             return False
 
-        # Check if the vehicle is within the fleet manager's service region
         fleet_manager_region = request.user.fleetmanager_profile.service_region
         if hasattr(obj, 'service_region'):
             return obj.service_region == fleet_manager_region
+        elif isinstance(obj, Park):
+            return obj == fleet_manager_region
         return False
 
 
@@ -43,6 +58,8 @@ class IsDriver(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        user_groups = list(request.user.groups.values_list('name', flat=True))
+        logger.debug(f"User groups for {request.user.email}: {user_groups}")
         return bool(request.user and request.user.is_authenticated and request.user.groups.filter(name='driver').exists())
 
     def has_object_permission(self, request, view, obj):
@@ -59,28 +76,41 @@ class IsDriver(permissions.BasePermission):
         if isinstance(obj, Park):
             return obj == driver_region
 
+        # For other objects with service_region
+        if hasattr(obj, 'service_region'):
+            return obj.service_region == driver_region
+
         return False
 
 
 class IsAgent(permissions.BasePermission):
     """
-    Custom permission to only allow agents to manage bookings in their service region.
+    Custom permission to only allow agents to perform actions.
+    No service region constraints for agents.
     """
 
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.groups.filter(name='agent').exists())
+        user_groups = list(request.user.groups.values_list('name', flat=True))
+        print(f"User groups for {request.user.email}: {user_groups}")
+        is_authenticated = bool(request.user and request.user.is_authenticated)
+        is_agent = bool(request.user.groups.filter(name='agent').exists())
+        print(f"Is authenticated: {is_authenticated}, Is agent: {is_agent}")
+        return is_authenticated and is_agent
 
     def has_object_permission(self, request, view, obj):
-        if not request.user.is_authenticated or not request.user.groups.filter(name='agent').exists():
+        print(f"Checking object permission for user {request.user.email}")
+        print(f"Object type: {type(obj)}")
+
+        if not request.user.is_authenticated:
+            print("User not authenticated")
             return False
 
-        agent_region = request.user.agent_profile.service_region
+        if not request.user.groups.filter(name='agent').exists():
+            print("User not in agent group")
+            return False
 
-        # For bookings, check if they're in the agent's service region
-        if hasattr(obj, 'service_region'):
-            return obj.service_region == agent_region
-
-        return False
+        # Agents have full access to all objects
+        return True
 
 
 class IsOwner(permissions.BasePermission):
@@ -112,6 +142,8 @@ class IsAdminOrFleetManager(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        user_groups = list(request.user.groups.values_list('name', flat=True))
+        logger.debug(f"User groups for {request.user.email}: {user_groups}")
         return bool(request.user and request.user.is_authenticated and (
             request.user.groups.filter(name='admin').exists() or
             request.user.groups.filter(name='fleetmanager').exists()
@@ -122,11 +154,19 @@ class IsAdminOrFleetManager(permissions.BasePermission):
             return False
 
         if request.user.groups.filter(name='admin').exists():
-            return True
+            admin_region = request.user.admin_profile.service_region
+            if hasattr(obj, 'service_region'):
+                return obj.service_region == admin_region
+            elif isinstance(obj, Park):
+                return obj == admin_region
+            return False
 
         if request.user.groups.filter(name='fleetmanager').exists():
             fleet_manager_region = request.user.fleetmanager_profile.service_region
             if hasattr(obj, 'service_region'):
                 return obj.service_region == fleet_manager_region
+            elif isinstance(obj, Park):
+                return obj == fleet_manager_region
+            return False
 
         return False

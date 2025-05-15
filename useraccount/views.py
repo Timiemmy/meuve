@@ -6,7 +6,7 @@ from . import serializers
 
 
 class CustomUserListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin | IsAgent]
     queryset = CustomUser.objects.all()
     serializer_class = serializers.CustomUserSerializer
 
@@ -31,10 +31,10 @@ class CustomUserDetailView(generics.RetrieveAPIView):
             return None
 
 
-class CustomUserUpdateView(generics.UpdateAPIView):
+class CustomUserUpdateView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = serializers.CustomUserSerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
 
 class CustomUserDestroyView(generics.DestroyAPIView):
