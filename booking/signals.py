@@ -18,6 +18,7 @@ def send_booking_confirmation_email(sender, instance, created, **kwargs):
             'booking': instance,
             'user': instance.passenger,
         })
+        
         plain_message = strip_tags(html_message)
 
         send_mail(
